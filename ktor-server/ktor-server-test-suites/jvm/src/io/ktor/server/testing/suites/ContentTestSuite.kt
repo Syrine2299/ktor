@@ -286,6 +286,7 @@ abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : Ap
             get("/chunked") {
                 call.respond(
                     object : OutgoingContent.WriteChannelContent() {
+                        @Suppress("DEPRECATION")
                         override suspend fun writeTo(channel: ByteWriteChannel) {
                             channel.writeFully(data)
                             channel.close()
@@ -297,6 +298,7 @@ abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : Ap
                 call.respond(
                     object : OutgoingContent.WriteChannelContent() {
                         override val contentLength: Long? get() = size
+                        @Suppress("DEPRECATION")
                         override suspend fun writeTo(channel: ByteWriteChannel) {
                             channel.writeFully(data)
                             channel.close()

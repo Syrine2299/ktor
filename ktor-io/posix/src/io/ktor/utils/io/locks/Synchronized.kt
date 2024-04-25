@@ -35,7 +35,7 @@ public actual open class SynchronizedObject {
      * will block until it can acquire the lock.
      */
     public fun lock() {
-        val currentThreadId = pthread_self()!!
+        val currentThreadId = pthread_self()
         while (true) {
             val state = lock.value
             when (state.status) {
@@ -115,7 +115,7 @@ public actual open class SynchronizedObject {
      * @return true if the lock was acquired, false otherwise.
      */
     public fun tryLock(): Boolean {
-        val currentThreadId = pthread_self()!!
+        val currentThreadId = pthread_self()
         while (true) {
             val state = lock.value
             if (state.status == Status.UNLOCKED) {
@@ -147,7 +147,7 @@ public actual open class SynchronizedObject {
      * other threads to acquire it.
      */
     public fun unlock() {
-        val currentThreadId = pthread_self()!!
+        val currentThreadId = pthread_self()
         while (true) {
             val state = lock.value
             require(currentThreadId == state.ownerThreadId) {

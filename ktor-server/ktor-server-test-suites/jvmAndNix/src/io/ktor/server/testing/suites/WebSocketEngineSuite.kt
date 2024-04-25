@@ -760,6 +760,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
         }
     }
 
+    @Suppress("DEPRECATION")
     private suspend inline fun useSocket(block: Connection.() -> Unit) {
         SelectorManager().use {
             aSocket(it).tcp().connect("localhost", port) {

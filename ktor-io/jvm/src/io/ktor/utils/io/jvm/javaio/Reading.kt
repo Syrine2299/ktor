@@ -74,7 +74,7 @@ internal class RawSourceChannel(
         return closedToken != null
     }
 
-    override fun cancel(cause: Throwable) {
+    override fun cancel(cause: Throwable?) {
         if (closedToken != null) return
         job.cancel("Job was cancelled", cause)
         source.close()

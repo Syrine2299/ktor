@@ -2,6 +2,8 @@
  * Copyright 2014-2024 JetBrains s.r.o and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("DEPRECATION")
+
 package io.ktor.utils.io
 
 import io.ktor.utils.io.core.*
@@ -203,7 +205,7 @@ public suspend fun ByteReadChannel.readRemaining(): ByteReadPacket {
 }
 
 @OptIn(InternalAPI::class, InternalIoApi::class)
-public suspend fun ByteReadChannel.readRemaining(max: Long): Buffer {
+public suspend fun ByteReadChannel.readRemaining(max: Long): ByteReadPacket {
     val result = BytePacketBuilder()
     var remaining = max
     while (!isClosedForRead && remaining > 0) {

@@ -104,6 +104,13 @@ public suspend fun ChannelJob.join() {
     job.join()
 }
 
+public val ChannelJob.isCompleted: Boolean get() = job.isCompleted
+
+public val ChannelJob.isCancelled: Boolean get() = job.isCancelled
+
+@OptIn(InternalCoroutinesApi::class)
+public fun ChannelJob.getCancellationException(): CancellationException = job.getCancellationException()
+
 public fun ChannelJob.invokeOnCompletion(block: () -> Unit) {
     job.invokeOnCompletion { block() }
 }

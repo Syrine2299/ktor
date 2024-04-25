@@ -115,7 +115,7 @@ public class ByteChannel : ByteReadChannel, BufferedByteWriteChannel {
         slot.close(null)
     }
 
-    override fun cancel(cause: Throwable) {
+    override fun cancel(cause: Throwable?) {
         if (_closedCause.value != null) return
 
         val actualCause = IOException("Channel was cancelled", cause)

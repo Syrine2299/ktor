@@ -20,6 +20,7 @@ class CoroutinesTest {
         assertEquals(42, channel.readByte())
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testReader() = testSuspend {
         val channel = GlobalScope.reader {

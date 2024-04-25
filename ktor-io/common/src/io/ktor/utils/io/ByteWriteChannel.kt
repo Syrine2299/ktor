@@ -29,17 +29,16 @@ public interface ByteWriteChannel {
 
     public suspend fun flushAndClose()
 
-    public fun cancel(cause: Throwable)
+    public fun cancel(cause: Throwable?)
 }
 
-@OptIn(InternalCoroutinesApi::class)
 @Deprecated(
     "Async close is deprecated. Please consider replacing it with flushAndClose or cancel ",
     ReplaceWith("flushAndClose()"),
     level = DeprecationLevel.WARNING
 )
 public fun ByteWriteChannel.close() {
-
+    ::flushAndClose.fireAndForget()
 }
 
 public fun ByteChannel.cancel() {

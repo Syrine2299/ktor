@@ -5,13 +5,40 @@
 package io.ktor.utils.io.core
 
 import kotlinx.cinterop.*
+import kotlinx.io.*
+import kotlinx.io.unsafe.*
+import platform.posix.*
 
-@OptIn(ExperimentalForeignApi::class)
-public fun BytePacketBuilder.writeFully(buffer: CPointer<ByteVarOf<Byte>>, offset: Int, length: Long) {
-    TODO("Not yet implemented")
+@Suppress("DEPRECATION")
+@OptIn(ExperimentalForeignApi::class, SnapshotApi::class, UnsafeIoApi::class, InternalIoApi::class)
+public fun BytePacketBuilder.write(block: (buffer: CPointer<ByteVar>, offset: Long, length: Long) -> Long): Long {
+    var result = 0L
+    UnsafeBufferAccessors.writeToTail(this.buffer, 1) { array, start, endExclusive ->
+        array.usePinned {
+            val pointer = it.addressOf(0)
+            result = block(pointer, start.toLong(), endExclusive.toLong())
+        }
+
+        result.toInt()
+    }
+
+    return result
 }
 
-@OptIn(ExperimentalForeignApi::class)
-public fun BytePacketBuilder.readAvailable(buffer: CPointer<ByteVarOf<Byte>>) {
-    TODO("Not yet implemented")
+@Suppress("DEPRECATION")
+@OptIn(ExperimentalForeignApi::class, SnapshotApi::class, UnsafeIoApi::class, InternalIoApi::class)
+public fun BytePacketBuilder.writeFully(buffer: CPointer<ByteVar>, offset: Long, length: Long) {
+    var consumed = 0L
+    while (consumed < length) {
+        UnsafeBufferAccessors.writeToTail(this.buffer, 1) { array, start, endExclusive ->
+            val size = minOf(length - consumed, (endExclusive - start).toLong())
+
+            array.usePinned {
+                memcpy(it.addressOf(start), buffer + offset + consumed, size.convert())
+            }
+
+            consumed += size
+            size.toInt()
+        }
+    }
 }

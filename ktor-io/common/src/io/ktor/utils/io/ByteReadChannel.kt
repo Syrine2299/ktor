@@ -29,7 +29,7 @@ public interface ByteReadChannel {
      */
     public suspend fun awaitContent(): Boolean
 
-    public fun cancel(cause: Throwable)
+    public fun cancel(cause: Throwable?)
 
     public companion object {
         public val Empty: ByteReadChannel = object : ByteReadChannel {
@@ -43,7 +43,7 @@ public interface ByteReadChannel {
 
             override suspend fun awaitContent(): Boolean = false
 
-            override fun cancel(cause: Throwable) {
+            override fun cancel(cause: Throwable?) {
             }
         }
     }

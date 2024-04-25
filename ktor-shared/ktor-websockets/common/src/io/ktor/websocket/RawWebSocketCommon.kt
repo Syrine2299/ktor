@@ -8,6 +8,7 @@ import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.bits.*
 import io.ktor.utils.io.core.*
+import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.*
@@ -72,6 +73,7 @@ internal class RawWebSocketCommon(
             _outgoing.close(t)
         } finally {
             _outgoing.close(CancellationException("WebSocket closed.", null))
+            @Suppress("DEPRECATION")
             output.close()
         }
 
@@ -206,6 +208,7 @@ public suspend fun ByteWriteChannel.writeFrame(frame: Frame, masking: Boolean) {
  * @param maxFrameSize maximum frame size that could be read
  * @param lastOpcode last read opcode
  */
+@Suppress("DEPRECATION")
 @InternalAPI // used in tests
 public suspend fun ByteReadChannel.readFrame(maxFrameSize: Long, lastOpcode: Int): Frame {
     val flagsAndOpcode = readByte().toInt()

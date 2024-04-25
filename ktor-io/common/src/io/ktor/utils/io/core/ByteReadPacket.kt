@@ -89,3 +89,12 @@ public fun <T> ByteReadPacket.preview(function: (ByteReadPacket) -> T): T {
 public fun <T> BytePacketBuilder.preview(function: (ByteReadPacket) -> T): T {
     return buffer.peek().use(function)
 }
+
+@Suppress("DEPRECATION")
+@Deprecated(
+    "Use close instead",
+    ReplaceWith("this.close()")
+)
+public fun ByteReadPacket.release() {
+    close()
+}

@@ -4,9 +4,16 @@
 
 package io.ktor.utils.io
 
+import io.ktor.utils.io.core.*
 import kotlinx.cinterop.*
 
 @OptIn(ExperimentalForeignApi::class)
-public fun ByteWriteChannel.writeFully(value: CPointer<ByteVarOf<Byte>>, offset: Int, length: Int) {
-    TODO("Not yet implemented")
+public suspend fun ByteWriteChannel.writeFully(value: CPointer<ByteVar>, offset: Int, length: Int) {
+    writeFully(value, offset.toLong(), length.toLong())
+}
+
+@OptIn(ExperimentalForeignApi::class, InternalAPI::class)
+public suspend fun ByteWriteChannel.writeFully(src: CPointer<ByteVar>, offset: Long, length: Long) {
+    writeBuffer.writeFully(src, offset, length)
+    flush()
 }

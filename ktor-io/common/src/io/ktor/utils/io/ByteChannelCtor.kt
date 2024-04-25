@@ -6,6 +6,7 @@ package io.ktor.utils.io
 
 import io.ktor.utils.io.charsets.*
 import io.ktor.utils.io.core.*
+import io.ktor.utils.io.errors.IOException
 import kotlinx.io.*
 import kotlinx.io.Buffer
 import kotlin.concurrent.*
@@ -50,9 +51,9 @@ public fun ByteReadChannel(source: Source): ByteReadChannel = object : ByteReadC
         return false
     }
 
-    override fun cancel(cause: Throwable) {
+    override fun cancel(cause: Throwable?) {
         if (closed != null) return
         source.close()
-        closed = ClosedToken(cause)
+        closed = ClosedToken(IOException("Channel was cancelled", cause))
     }
 }

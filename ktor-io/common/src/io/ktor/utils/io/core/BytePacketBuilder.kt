@@ -24,7 +24,6 @@ public fun BytePacketBuilder.append(value: CharSequence, startIndex: Int = 0, en
 }
 
 @OptIn(InternalIoApi::class)
-@Deprecated("Build is no longer needed", ReplaceWith("this"))
 @Suppress("DEPRECATION")
 public fun BytePacketBuilder.build(): ByteReadPacket = buffer
 
