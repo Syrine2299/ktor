@@ -13,15 +13,18 @@ import java.nio.*
 public class WriteSuspendSession(public val channel: ByteWriteChannel) {
     private val byteBuffer = ByteBuffer.allocate(8192)
 
+    @Suppress("UNUSED_PARAMETER")
     public fun request(count: Int): ByteBuffer? {
         return byteBuffer
     }
 
+    @Suppress("UNUSED_PARAMETER")
     @OptIn(InternalAPI::class)
     public fun tryAwait(count: Int) {
         channel.writeBuffer.writeByteBuffer(byteBuffer)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     public suspend fun written(rc: Int) {
         byteBuffer.flip()
         channel.writeFully(byteBuffer)

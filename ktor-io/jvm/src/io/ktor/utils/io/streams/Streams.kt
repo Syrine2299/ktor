@@ -12,19 +12,23 @@ import java.io.*
 
 public fun InputStream.asInput(): Input = asSource().buffered()
 
+@Suppress("DEPRECATION")
 public fun ByteReadPacket.inputStream(): InputStream = asInputStream()
 
+@Suppress("DEPRECATION")
 @OptIn(InternalIoApi::class)
 public fun OutputStream.writePacket(packet: ByteReadPacket) {
     packet.buffer.copyTo(this)
 }
 
+@Suppress("DEPRECATION")
 public fun OutputStream.writePacket(block: BytePacketBuilder.() -> Unit) {
     val builder = Buffer()
     builder.block()
     writePacket(builder)
 }
 
+@Suppress("DEPRECATION")
 @OptIn(SnapshotApi::class, UnsafeIoApi::class)
 public fun InputStream.readPacketAtLeast(min: Int = 1): ByteReadPacket {
     val buffer = Buffer()

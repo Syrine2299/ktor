@@ -36,8 +36,56 @@ public fun ByteString(buffer: ByteBuffer): ByteString {
     return ByteString(array)
 }
 
-public suspend fun ByteReadChannel.copyTo(channel: ReadableByteChannel): Long {
-    TODO("Not yet implemented")
+/**
+ * Copy up to [limit] bytes to blocking NIO [channel].
+ * Copying to a non-blocking channel requires selection and not supported.
+ * It is suspended if no data are available in a byte channel but may block if destination NIO channel blocks.
+ *
+ * @return number of bytes copied
+ */
+public suspend fun ByteReadChannel.copyTo(channel: WritableByteChannel, limit: Long = Long.MAX_VALUE): Long {
+    require(limit >= 0L) { "Limit shouldn't be negative: $limit" }
+    if (channel is SelectableChannel && !channel.isBlocking) {
+        throw IllegalArgumentException("Non-blocking channels are not supported")
+    }
+
+    if (isClosedForRead) {
+        closedCause?.let { throw it }
+        return 0
+    }
+
+    var copied = 0L
+    val copy = { bb: ByteBuffer ->
+        val rem = limit - copied
+
+        if (rem < bb.remaining()) {
+            val l = bb.limit()
+            bb.limit(bb.position() + rem.toInt())
+
+            while (bb.hasRemaining()) {
+                channel.write(bb)
+            }
+
+            bb.limit(l)
+            copied += rem
+        } else {
+            var written = 0L
+            while (bb.hasRemaining()) {
+                written += channel.write(bb)
+            }
+
+            copied += written
+        }
+    }
+
+    while (copied < limit) {
+        read(min = 0, consumer = copy)
+        if (isClosedForRead) break
+    }
+
+    closedCause?.let { throw it }
+
+    return copied
 }
 
 @OptIn(InternalAPI::class)
@@ -106,3 +154,39 @@ public fun ByteReadChannel.readAvailable(block: (ByteBuffer) -> Int): Int {
     return result
 }
 
+/**
+ * Invokes [consumer] when it will be possible to read at least [min] bytes
+ * providing byte buffer to it so lambda can read from the buffer
+ * up to [ByteBuffer.remaining] bytes. If there are no [min] bytes available then the invocation could
+ * suspend until the requirement will be met.
+ *
+ * If [min] is zero then the invocation will suspend until at least one byte available.
+ *
+ * Warning: it is not guaranteed that all of remaining bytes will be represented as a single byte buffer
+ * eg: it could be 4 bytes available for read but the provided byte buffer could have only 2 remaining bytes:
+ * in this case you have to invoke read again (with decreased [min] accordingly).
+ *
+ * It will fail with [EOFException] if not enough bytes ([availableForRead] < [min]) available
+ * in the channel after it is closed.
+ *
+ * [consumer] lambda should modify buffer's position accordingly. It also could temporarily modify limit however
+ * it should restore it before return. It is not recommended to access any bytes of the buffer outside of the
+ * provided byte range [position(); limit()) as there could be any garbage or incomplete data.
+ *
+ * @param min amount of bytes available for read, should be positive or zero
+ * @param consumer to be invoked when at least [min] bytes available for read
+ */
+@OptIn(InternalAPI::class)
+public suspend fun ByteReadChannel.read(min: Int = 1, consumer: (ByteBuffer) -> Unit) {
+    require(min >= 0) { "min should be positive or zero" }
+    if (availableForRead >= min) {
+        readBuffer.read(consumer)
+    }
+
+    awaitContent()
+    if (isClosedForRead && min > 0) {
+        throw EOFException("Not enough bytes available: required $min but $availableForRead available")
+    }
+
+    readBuffer.read(consumer)
+}

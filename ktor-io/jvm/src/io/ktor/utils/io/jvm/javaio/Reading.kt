@@ -16,8 +16,7 @@ import kotlin.coroutines.*
  * Please note that it may block your async code when started on [Dispatchers.Unconfined]
  * since [InputStream] is blocking on it's nature
  */
-@OptIn(DelicateCoroutinesApi::class)
-@Suppress("BlockingMethodInNonBlockingContext")
+@Suppress("UNUSED_PARAMETER")
 public fun InputStream.toByteReadChannel(
     context: CoroutineContext = Dispatchers.IO,
     pool: ObjectPool<ByteBuffer>
@@ -28,8 +27,7 @@ public fun InputStream.toByteReadChannel(
  * Please note that it may block your async code when started on [Dispatchers.Unconfined]
  * since [InputStream] is blocking on it's nature
  */
-@OptIn(DelicateCoroutinesApi::class)
-@Suppress("BlockingMethodInNonBlockingContext")
+@Suppress("UNUSED_PARAMETER")
 @JvmName("toByteReadChannelWithArrayPool")
 public fun InputStream.toByteReadChannel(
     context: CoroutineContext = Dispatchers.IO,

@@ -6,24 +6,29 @@ package io.ktor.utils.io
 
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.intrinsics.*
 import kotlinx.io.*
 import kotlinx.io.Buffer
+import kotlinx.io.unsafe.*
 import kotlin.coroutines.*
 import kotlin.jvm.*
 
 @OptIn(InternalAPI::class)
-public fun ByteWriteChannel.writeByte(value: Byte) {
+public suspend fun ByteWriteChannel.writeByte(value: Byte) {
     writeBuffer.writeByte(value)
+    flush()
 }
 
 @OptIn(InternalAPI::class)
-public fun ByteWriteChannel.writeShort(value: Short) {
+public suspend fun ByteWriteChannel.writeShort(value: Short) {
     writeBuffer.writeShort(value)
+    flush()
 }
 
 @OptIn(InternalAPI::class)
-public fun ByteWriteChannel.writeInt(value: Int) {
+public suspend fun ByteWriteChannel.writeInt(value: Int) {
     writeBuffer.writeInt(value)
+    flush()
 }
 
 @OptIn(InternalAPI::class)
@@ -82,7 +87,7 @@ public suspend fun ByteWriteChannel.writePacket(copy: Source) {
 
 public fun ByteWriteChannel.close(cause: Throwable?) {
     if (cause == null) {
-        GlobalScope.launch { flushAndClose() }
+        ::flushAndClose.fireAndForget()
     } else {
         cancel(cause)
     }
@@ -110,6 +115,7 @@ public class WriterJob internal constructor(
     public override val job: Job
 ) : ChannelJob
 
+@Suppress("UNUSED_PARAMETER")
 public fun CoroutineScope.writer(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     autoFlush: Boolean = false,
@@ -134,11 +140,42 @@ public fun CoroutineScope.writer(
     return WriterJob(channel, job)
 }
 
-public fun ByteWriteChannel.write(block: (Memory, Int, Int) -> Int): Int {
-    TODO("Not yet implemented")
+/**
+ * Await for [desiredSpace] will be available for write and invoke [block] function providing [Memory] instance and
+ * the corresponding range suitable for wiring in the memory. The block function should return number of bytes were
+ * written, possibly 0.
+ *
+ * Similar to [ByteReadChannel.read], this function may invoke block function with lesser memory range when the
+ * specified [desiredSpace] is bigger that the buffer's capacity
+ * or when it is impossible to represent all [desiredSpace] bytes as a single memory range
+ * due to internal implementation reasons.
+ */
+@OptIn(SnapshotApi::class, UnsafeIoApi::class, InternalAPI::class, InternalIoApi::class)
+public suspend fun ByteWriteChannel.write(
+    desiredSpace: Int = 1,
+    block: (Memory, Int, Int) -> Int
+): Int {
+    val before = writeBuffer.size
+    UnsafeBufferAccessors.writeToTail(writeBuffer.buffer, desiredSpace, block)
+    val after = writeBuffer.size
+    val written = after - before
+    flush()
+    return written
 }
 
 public suspend fun ByteWriteChannel.awaitFreeSpace() {
     flush()
 }
 
+@OptIn(InternalCoroutinesApi::class)
+internal fun <R> (suspend () -> R).fireAndForget() {
+    this.startCoroutineCancellable(NO_CALLBACK)
+}
+
+private val NO_CALLBACK = object : Continuation<Any?> {
+    override val context: CoroutineContext
+        get() = EmptyCoroutineContext
+
+    override fun resumeWith(result: Result<Any?>) {
+    }
+}

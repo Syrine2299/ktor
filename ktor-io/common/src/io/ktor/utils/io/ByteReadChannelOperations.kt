@@ -183,10 +183,14 @@ public fun ByteReadChannel.split(): Pair<ByteReadChannel, ByteReadChannel> {
     TODO("Not yet implemented")
 }
 
-public suspend fun ByteReadChannel.readByteArray(count: Int): ByteArray {
-    TODO("Not yet implemented")
-}
+public suspend fun ByteReadChannel.readByteArray(count: Int): ByteArray = buildPacket {
+    while (size < count) {
+        val packet = readPacket(count - size)
+        writePacket(packet)
+    }
+}.readByteArray()
 
+@Suppress("DEPRECATION")
 @OptIn(InternalAPI::class, InternalIoApi::class)
 public suspend fun ByteReadChannel.readRemaining(): ByteReadPacket {
     val result = BytePacketBuilder()
@@ -230,8 +234,30 @@ public suspend fun ByteReadChannel.readAvailable(
     return readBuffer.readAvailable(buffer, offset, length)
 }
 
+/**
+ * Invokes [block] if it is possible to read at least [min] byte
+ * providing buffer to it so lambda can read from the buffer
+ * up to [Buffer.readRemaining] bytes. If there are no [min] bytes available then the invocation returns -1.
+ *
+ * Warning: it is not guaranteed that all of available bytes will be represented as a single byte buffer
+ * eg: it could be 4 bytes available for read but the provided byte buffer could have only 2 available bytes:
+ * in this case you have to invoke read again (with decreased [min] accordingly).
+ *
+ * @param min amount of bytes available for read, should be positive
+ * @param block to be invoked when at least [min] bytes available
+ *
+ * @return number of consumed bytes or -1 if the block wasn't executed.
+ */
+@OptIn(InternalAPI::class, InternalIoApi::class)
 public fun ByteReadChannel.readAvailable(min: Int, block: (Buffer) -> Unit): Int {
-    TODO()
+    require(min > 0) { "min should be positive" }
+    require(min <= CHANNEL_MAX_SIZE) { "Min($min) shouldn't be greater than $CHANNEL_MAX_SIZE" }
+
+    if (availableForRead < min) return -1
+    val before = readBuffer.remaining
+    block(readBuffer.buffer)
+    check(before >= readBuffer.remaining) { "Buffer was corrupted by the block: $before -> ${readBuffer.remaining}" }
+    return (before - readBuffer.remaining).toInt()
 }
 
 @JvmInline
@@ -242,6 +268,7 @@ public class ReaderJob internal constructor(
     public override val job: Job
 ) : ChannelJob
 
+@Suppress("UNUSED_PARAMETER")
 public fun CoroutineScope.reader(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     autoFlush: Boolean = false,
@@ -266,6 +293,7 @@ public fun CoroutineScope.reader(
     return ReaderJob(channel, job)
 }
 
+@Suppress("DEPRECATION")
 @OptIn(InternalAPI::class)
 public suspend fun ByteReadChannel.readPacket(packet: Int): ByteReadPacket {
     while (readBuffer.remaining < packet && awaitContent()) {

@@ -5,7 +5,9 @@
 package io.ktor.utils.io
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.intrinsics.*
 import kotlinx.io.*
+import kotlin.coroutines.*
 
 /**
  * Channel for asynchronous writing of sequences of bytes.
@@ -30,15 +32,14 @@ public interface ByteWriteChannel {
     public fun cancel(cause: Throwable)
 }
 
+@OptIn(InternalCoroutinesApi::class)
 @Deprecated(
     "Async close is deprecated. Please consider replacing it with flushAndClose or cancel ",
     ReplaceWith("flushAndClose()"),
-    level = DeprecationLevel.ERROR
+    level = DeprecationLevel.WARNING
 )
 public fun ByteWriteChannel.close() {
-    GlobalScope.launch {
-        flushAndClose()
-    }
+
 }
 
 public fun ByteChannel.cancel() {

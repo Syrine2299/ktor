@@ -7,9 +7,12 @@ package io.ktor.utils.io.core
 public typealias Memory = ByteArray
 
 public fun <T> withMemory(size: Int, block: (Memory) -> T): T {
-    TODO()
+    return block(ByteArray(size))
 }
 
 public fun Memory.storeIntAt(index: Int, value: Int) {
-    TODO("Not yet implemented")
+    this[index] = (value shr 24).toByte()
+    this[index + 1] = (value shr 16).toByte()
+    this[index + 2] = (value shr 8).toByte()
+    this[index + 3] = value.toByte()
 }

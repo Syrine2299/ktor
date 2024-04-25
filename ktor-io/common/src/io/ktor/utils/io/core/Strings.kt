@@ -4,7 +4,7 @@ import io.ktor.utils.io.charsets.*
 import kotlinx.io.*
 import kotlin.math.*
 
-public inline fun String.toByteArray(charset: Charset = Charsets.UTF_8): ByteArray {
+public fun String.toByteArray(charset: Charset = Charsets.UTF_8): ByteArray {
     if (charset == Charsets.UTF_8) return encodeToByteArray()
 
     return charset.newEncoder().encodeToByteArray(this, 0, length)
@@ -24,7 +24,11 @@ public fun String(
     offset: Int = 0,
     length: Int = bytes.size,
     charset: Charset = Charsets.UTF_8
-): String = bytes.decodeToString(offset, offset + length)
+): String {
+    check(charset == Charsets.UTF_8) { "Only UTF-8 charset is supported" }
+
+    return bytes.decodeToString(offset, offset + length)
+}
 
 /**
  * Read exactly [n] bytes (consumes all remaining if [n] is not specified but up to [Int.MAX_VALUE] bytes).

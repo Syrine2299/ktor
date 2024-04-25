@@ -6,12 +6,14 @@ package io.ktor.utils.io
 
 import kotlinx.coroutines.*
 
+@Suppress("UNUSED_PARAMETER")
 public fun ByteChannel(autoFlush: Boolean = false): ByteChannel = ByteChannel()
 
+@Suppress("UnusedReceiverParameter", "UNUSED_PARAMETER")
 public fun ByteChannel.attachJob(job: Job) {}
 
 public fun ByteChannel.attachJob(job: ChannelJob) {
     attachJob(job.job)
 }
 
-public fun ByteChannel(block: (Throwable?) -> Throwable?): ByteChannel = ByteChannel()
+public fun ByteChannel(@Suppress("UNUSED_PARAMETER") block: (Throwable?) -> Throwable?): ByteChannel = ByteChannel()

@@ -16,4 +16,5 @@ import io.ktor.utils.io.*
 )
 public typealias Buffer = kotlinx.io.Buffer
 
+@Suppress("DEPRECATION")
 public fun Buffer.canRead(): Boolean = !exhausted()

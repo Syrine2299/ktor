@@ -14,10 +14,12 @@ internal const val IO_DEPRECATION_MESSAGE = """
     https://youtrack.jetbrains.com/issue/KTOR-6030/Migrate-to-new-kotlinx.io-library
     """
 
+@Suppress("DEPRECATION")
 public fun ByteReadPacket.readText(): String {
     return readString()
 }
 
+@Suppress("DEPRECATION")
 @Deprecated("Use close() instead", ReplaceWith("close()"))
 public fun BytePacketBuilder.release() {
     close()

@@ -13,6 +13,7 @@ import kotlin.math.*
  * Create blocking [java.io.InputStream] for this channel that does block every time the channel suspends at read
  * Similar to do reading in [runBlocking] however you can pass it to regular blocking API
  */
+@Suppress("UNUSED_PARAMETER")
 @OptIn(InternalAPI::class)
 public fun ByteReadChannel.toInputStream(parent: Job? = null): InputStream = object : InputStream() {
 

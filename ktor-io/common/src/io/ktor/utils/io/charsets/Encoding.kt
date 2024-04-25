@@ -33,6 +33,7 @@ public expect fun CharsetEncoder.encodeToByteArray(
     toIndex: Int = input.length
 ): ByteArray
 
+@Suppress("DEPRECATION")
 public fun CharsetEncoder.encode(
     input: CharSequence,
     fromIndex: Int = 0,
@@ -105,8 +106,6 @@ internal fun CharsetEncoder.encodeToImpl(
 
         when {
             start >= toIndex -> break
-            rc == 0 -> 8
-            else -> 1
         }
     }
 }

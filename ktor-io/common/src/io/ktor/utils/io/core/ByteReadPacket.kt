@@ -9,11 +9,13 @@ import kotlinx.io.*
     "Use Source instead",
     ReplaceWith("Source", "kotlinx.io.Buffer")
 )
-public typealias ByteReadPacket = kotlinx.io.Source
+public typealias ByteReadPacket = Source
 
+@Suppress("DEPRECATION")
 public val ByteReadPacketEmpty: ByteReadPacket = kotlinx.io.Buffer()
 
-public inline fun ByteReadPacket(
+@Suppress("DEPRECATION")
+public fun ByteReadPacket(
     array: ByteArray,
     offset: Int = 0,
     length: Int = array.size
@@ -38,6 +40,7 @@ public fun Sink(pool: ObjectPool<*>): kotlinx.io.Buffer = kotlinx.io.Buffer()
 )
 public fun Sink(): kotlinx.io.Buffer = kotlinx.io.Buffer()
 
+@Suppress("DEPRECATION")
 @OptIn(InternalIoApi::class)
 public fun ByteReadPacket.readAvailable(out: Buffer): Int {
     val result = buffer.size
@@ -45,14 +48,17 @@ public fun ByteReadPacket.readAvailable(out: Buffer): Int {
     return result.toInt()
 }
 
+@Suppress("DEPRECATION")
 @OptIn(InternalIoApi::class)
 public fun ByteReadPacket.copy(): ByteReadPacket = buffer.copy()
 
+@Suppress("DEPRECATION")
 @OptIn(InternalIoApi::class)
 public fun ByteReadPacket.readShortLittleEndian(): Short {
     return buffer.readShortLe()
 }
 
+@Suppress("DEPRECATION")
 @OptIn(InternalIoApi::class)
 public fun ByteReadPacket.discard(count: Long = Long.MAX_VALUE): Long {
     val countToDiscard = minOf(count, remaining)
@@ -60,24 +66,25 @@ public fun ByteReadPacket.discard(count: Long = Long.MAX_VALUE): Long {
     return countToDiscard
 }
 
-public fun ByteReadPacket.forEach(block: (byte: Byte) -> Unit) {
-    TODO()
-}
-
+@Suppress("DEPRECATION")
 @OptIn(InternalIoApi::class)
 public fun ByteReadPacket.takeWhile(block: (Buffer) -> Boolean) {
-    block(buffer)
+    while (!isEmpty && block(buffer)) {
+    }
 }
 
+@Suppress("DEPRECATION")
 public fun ByteReadPacket.readFully(out: ByteArray, offset: Int = 0, length: Int = out.size - offset) {
     readTo(out, offset, offset + length)
 }
 
+@Suppress("DEPRECATION")
 @OptIn(InternalIoApi::class, ExperimentalStdlibApi::class)
 public fun <T> ByteReadPacket.preview(function: (ByteReadPacket) -> T): T {
     return buffer.peek().use(function)
 }
 
+@Suppress("DEPRECATION")
 @OptIn(InternalIoApi::class, ExperimentalStdlibApi::class)
 public fun <T> BytePacketBuilder.preview(function: (ByteReadPacket) -> T): T {
     return buffer.peek().use(function)
