@@ -10,8 +10,10 @@ import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
 import kotlin.test.*
 
+@Suppress("DEPRECATION")
 class ChannelTest {
 
+    @OptIn(InternalAPI::class)
     @Test
     fun testCopyToFlushesDestination() = testSuspend {
         val source = ByteChannel()
@@ -31,6 +33,7 @@ class ChannelTest {
         source.close()
     }
 
+    @OptIn(InternalAPI::class)
     @Test
     fun testCopyToBoth() = testSuspend {
         val data = ByteArray(16 * 1024) { it.toByte() }
@@ -87,7 +90,7 @@ class ChannelTest {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
+    @OptIn(DelicateCoroutinesApi::class, InternalAPI::class)
     @Test
     fun testCopyToBothCancelFirstReader() = testSuspend {
         val data = ByteArray(16 * 1024) { it.toByte() }
@@ -118,7 +121,7 @@ class ChannelTest {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
+    @OptIn(DelicateCoroutinesApi::class, InternalAPI::class)
     @Test
     fun testCopyToBothCancelSecondReader() = testSuspend {
         val data = ByteArray(16 * 1024) { it.toByte() }
@@ -139,6 +142,7 @@ class ChannelTest {
 
         assertFailsWithMessage(message) {
             val secondResult = GlobalScope.async(Dispatchers.Unconfined) {
+                @Suppress("DEPRECATION")
                 second.readRemaining().readBytes()
             }
             secondResult.await()

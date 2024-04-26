@@ -260,6 +260,7 @@ class HttpTimeoutTest : ClientLoader() {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testGetStream() = clientTests {
         config {
@@ -275,6 +276,7 @@ class HttpTimeoutTest : ClientLoader() {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testGetStreamPerRequestAttributes() = clientTests {
         config {

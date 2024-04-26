@@ -13,6 +13,7 @@ import kotlin.test.*
 
 class TCPSocketTest {
 
+    @Suppress("DEPRECATION")
     @Test
     fun testEcho() = testSockets { selector ->
         val tcp = aSocket(selector).tcp()
@@ -56,6 +57,7 @@ class TCPSocketTest {
         server.close()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testEchoOverUnixSockets() = testSockets { selector ->
         if (!supportsUnixDomainSockets()) return@testSockets

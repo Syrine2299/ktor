@@ -400,6 +400,7 @@ class LoggingTest : ClientLoader() {
         }
     }
 
+    @OptIn(InternalAPI::class)
     @Test
     fun testLoggingWithStreaming() = clientTests {
         val testLogger = TestLogger()

@@ -15,10 +15,9 @@ import kotlin.coroutines.*
 import kotlin.jvm.*
 
 
+@OptIn(InternalAPI::class)
 public val ByteWriteChannel.availableForWrite: Int
-    get() {
-        TODO()
-    }
+    get() = CHANNEL_MAX_SIZE - writeBuffer.size
 
 public suspend fun ByteReadChannel.toByteArray(): ByteArray {
     return readBuffer().readBytes()

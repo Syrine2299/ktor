@@ -73,6 +73,7 @@ class RawWebSocketTest : BaseTest() {
         ensureCompletion()
     }
 
+    @OptIn(InternalAPI::class)
     @Test
     fun testServerIncomingDisconnected(): Unit = runTest {
         client2server.close()
