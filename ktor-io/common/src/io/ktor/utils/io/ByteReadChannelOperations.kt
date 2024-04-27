@@ -228,9 +228,8 @@ public suspend fun ByteReadChannel.readAvailable(
     offset: Int = 0,
     length: Int = buffer.size - offset
 ): Int {
-    if (isClosedForRead) return -1
     if (readBuffer.exhausted()) awaitContent()
-    if (isClosedForRead) return -1
+    if (isClosedForRead) return 0
 
     return readBuffer.readAvailable(buffer, offset, length)
 }

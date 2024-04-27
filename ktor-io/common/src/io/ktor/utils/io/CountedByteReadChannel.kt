@@ -14,9 +14,7 @@ import kotlinx.io.*
 public val ByteReadChannel.totalBytesRead: Long
     get() = error("Counter is no longer available on the regular ByteReadChannel. Use CounterByteReadChannel instead.")
 
-
-public fun ByteReadChannel.counted(): CountedByteReadChannel =
-    CountedByteReadChannel(this)
+public fun ByteReadChannel.counted(): CountedByteReadChannel = CountedByteReadChannel(this)
 
 public class CountedByteReadChannel(public val delegate: ByteReadChannel) : ByteReadChannel {
 

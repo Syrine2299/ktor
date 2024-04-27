@@ -26,7 +26,7 @@ public fun BytePacketBuilder.write(block: (buffer: CPointer<ByteVar>, offset: Lo
 }
 
 @Suppress("DEPRECATION")
-@OptIn(ExperimentalForeignApi::class, SnapshotApi::class, UnsafeIoApi::class, InternalIoApi::class)
+@OptIn(ExperimentalForeignApi::class, SnapshotApi::class, UnsafeIoApi::class, InternalIoApi::class, UnsafeNumber::class)
 public fun BytePacketBuilder.writeFully(buffer: CPointer<ByteVar>, offset: Long, length: Long) {
     var consumed = 0L
     while (consumed < length) {

@@ -159,7 +159,7 @@ public fun CoroutineScope.writer(
  */
 @OptIn(SnapshotApi::class, UnsafeIoApi::class, InternalAPI::class, InternalIoApi::class)
 public suspend fun ByteWriteChannel.write(
-    desiredSpace: Int,
+    desiredSpace: Int = 1,
     block: (Memory, Int, Int) -> Int
 ): Int {
     val before = writeBuffer.size

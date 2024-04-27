@@ -103,7 +103,7 @@ internal class DatagramSocketNative(
                     0,
                     clientAddress.ptr.reinterpret(),
                     clientAddressLength.ptr
-                )
+                ).toLong()
 
                 when (bytesRead) {
                     0L -> throw IOException("Failed reading from closed socket")

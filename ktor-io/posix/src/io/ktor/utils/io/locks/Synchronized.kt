@@ -4,8 +4,6 @@
 
 package io.ktor.utils.io.locks
 
-import io.ktor.io.*
-import io.ktor.utils.io.locks.SynchronizedObject
 import io.ktor.io.interop.mutex.*
 import io.ktor.utils.io.*
 import kotlinx.cinterop.*
@@ -35,7 +33,7 @@ public actual open class SynchronizedObject {
      * will block until it can acquire the lock.
      */
     public fun lock() {
-        val currentThreadId = pthread_self()
+        val currentThreadId = pthread_self()!!
         while (true) {
             val state = lock.value
             when (state.status) {

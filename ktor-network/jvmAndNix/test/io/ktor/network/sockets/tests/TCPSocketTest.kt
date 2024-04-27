@@ -6,8 +6,8 @@ package io.ktor.network.sockets.tests
 
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
-import io.ktor.utils.io.CancellationException
 import io.ktor.utils.io.core.*
+import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.*
 import kotlin.test.*
 
@@ -122,7 +122,7 @@ class TCPSocketTest {
 
             client.cancel()
 
-            assertFailsWith<CancellationException> {
+            assertFailsWith<IOException> {
                 readChannel.readByte()
             }
         }

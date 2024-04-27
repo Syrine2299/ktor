@@ -61,6 +61,7 @@ public fun ByteReadPacket.readShortLittleEndian(): Short {
 @Suppress("DEPRECATION")
 @OptIn(InternalIoApi::class)
 public fun ByteReadPacket.discard(count: Long = Long.MAX_VALUE): Long {
+    request(count)
     val countToDiscard = minOf(count, remaining)
     buffer.skip(countToDiscard)
     return countToDiscard

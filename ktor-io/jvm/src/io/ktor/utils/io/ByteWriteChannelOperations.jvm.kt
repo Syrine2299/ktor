@@ -8,7 +8,6 @@ import io.ktor.utils.io.core.*
 import kotlinx.io.*
 import kotlinx.io.unsafe.*
 import java.nio.*
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction
 
 @OptIn(InternalAPI::class)
 public suspend fun ByteWriteChannel.writeByteBuffer(value: ByteBuffer) {
@@ -23,8 +22,8 @@ public suspend fun ByteWriteChannel.writeFully(value: ByteBuffer) {
 }
 
 @OptIn(SnapshotApi::class, UnsafeIoApi::class, InternalAPI::class, InternalIoApi::class)
-public suspend fun ByteWriteChannel.write(block: (buffer: ByteBuffer) -> Unit) {
-    UnsafeBufferAccessors.writeToTail(writeBuffer.buffer, 1) { array, startIndex, endIndex ->
+public suspend fun ByteWriteChannel.write(min: Int = 1, block: (buffer: ByteBuffer) -> Unit) {
+    UnsafeBufferAccessors.writeToTail(writeBuffer.buffer, min) { array, startIndex, endIndex ->
         val buffer = ByteBuffer.wrap(array, startIndex, endIndex - startIndex)
         block(buffer)
         return@writeToTail buffer.position() - startIndex
