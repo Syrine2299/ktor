@@ -101,11 +101,11 @@ internal actual class ConnectionPipeline actual constructor(
                         (status !in listOf(HttpStatusCode.NotModified, HttpStatusCode.NoContent)) &&
                         !status.isInformational()
 
-                    val responseChannel = if (hasBody) ByteChannel() else null
+                    val responseChannel = if (hasBody) io.ktor.utils.io.ByteChannel() else null
 
                     var skipTask: Job? = null
                     val body: ByteReadChannel = if (responseChannel != null) {
-                        val proxyChannel = ByteChannel()
+                        val proxyChannel = io.ktor.utils.io.ByteChannel()
                         skipTask = skipCancels(responseChannel, proxyChannel)
                         proxyChannel
                     } else ByteReadChannel.Empty

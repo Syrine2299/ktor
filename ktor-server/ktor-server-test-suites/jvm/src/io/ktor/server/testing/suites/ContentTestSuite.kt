@@ -15,13 +15,11 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.test.base.*
-import io.ktor.util.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
 import java.io.*
 import kotlin.test.*
-import kotlin.test.Test
 
 abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configuration>(
     hostFactory: ApplicationEngineFactory<TEngine, TConfiguration>
@@ -298,6 +296,7 @@ abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : Ap
                 call.respond(
                     object : OutgoingContent.WriteChannelContent() {
                         override val contentLength: Long? get() = size
+
                         @Suppress("DEPRECATION")
                         override suspend fun writeTo(channel: ByteWriteChannel) {
                             channel.writeFully(data)
@@ -420,8 +419,10 @@ abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : Ap
         }
 
         withUrl("/files/${ContentTestSuite::class.simpleName}.class") {
+            println("first response $it")
             assertEquals(200, status.value)
             val bytes = readBytes(8192)
+            println("read bytes $bytes")
             assertNotEquals(0, bytes.size)
 
             // class file signature
@@ -432,14 +433,17 @@ abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : Ap
 
             discardRemaining()
         }
+        println("first done")
         withUrl("/files/${ContentTestSuite::class.simpleName}.class2") {
             assertEquals(HttpStatusCode.NotFound.value, status.value)
             discardRemaining()
         }
+        println("second done")
         withUrl("/wefwefwefw") {
             assertEquals(HttpStatusCode.NotFound.value, status.value)
             discardRemaining()
         }
+        println("third done")
     }
 
     @Test
@@ -634,8 +638,7 @@ abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : Ap
                     when (part) {
                         is PartData.FormItem -> response.append("${part.name}=${part.value}\n")
                         is PartData.FileItem -> {
-                            @Suppress("DEPRECATION")
-                            val lineSequence = part.streamProvider().bufferedReader().lineSequence()
+                            val lineSequence = part.provider().readRemaining().readText().lines()
                             response.append("file:${part.name},${part.originalFileName},${lineSequence.count()}\n")
                         }
 

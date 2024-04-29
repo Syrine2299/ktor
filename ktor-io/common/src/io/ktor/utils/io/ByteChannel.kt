@@ -11,7 +11,7 @@ import kotlinx.io.*
 import kotlin.concurrent.*
 
 @InternalAPI
-public val CHANNEL_MAX_SIZE: Int = 8 * 1024
+public val CHANNEL_MAX_SIZE: Int = 4 * 1024
 
 private class CloseToken(val cause: IOException?)
 
@@ -20,7 +20,7 @@ private val CLOSED = CloseToken(null)
 /**
  * Sequential (non-concurrent) byte channel implementation
  */
-public class ByteChannel : ByteReadChannel, BufferedByteWriteChannel {
+public class ByteChannel(public val autoFlush: Boolean = false) : ByteReadChannel, BufferedByteWriteChannel {
     private val _closedCause = atomic<CloseToken?>(null)
     private val slot = AwaitingSlot()
     private val flushBuffer: Buffer = Buffer()

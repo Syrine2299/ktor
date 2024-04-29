@@ -4,10 +4,8 @@
 
 package io.ktor.utils.io
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.intrinsics.*
+import io.ktor.utils.io.core.*
 import kotlinx.io.*
-import kotlin.coroutines.*
 
 /**
  * Channel for asynchronous writing of sequences of bytes.
@@ -52,4 +50,9 @@ public fun ByteChannel.cancel() {
 )
 public fun ByteWriteChannel.cancel() {
     cancel(IOException("Channel was cancelled"))
+}
+
+@InternalAPI
+public suspend fun ByteWriteChannel.flushIfNeeded() {
+    if ((this as? ByteChannel)?.autoFlush == true || writeBuffer.size >= CHANNEL_MAX_SIZE) flush()
 }

@@ -16,73 +16,73 @@ import kotlin.jvm.*
 @OptIn(InternalAPI::class)
 public suspend fun ByteWriteChannel.writeByte(value: Byte) {
     writeBuffer.writeByte(value)
-    flush()
+    flushIfNeeded()
 }
 
 @OptIn(InternalAPI::class)
 public suspend fun ByteWriteChannel.writeShort(value: Short) {
     writeBuffer.writeShort(value)
-    flush()
+    flushIfNeeded()
 }
 
 @OptIn(InternalAPI::class)
 public suspend fun ByteWriteChannel.writeInt(value: Int) {
     writeBuffer.writeInt(value)
-    flush()
+    flushIfNeeded()
 }
 
 @OptIn(InternalAPI::class)
 public suspend fun ByteWriteChannel.writeLong(value: Long) {
     writeBuffer.writeLong(value)
-    flush()
+    flushIfNeeded()
 }
 
 @OptIn(InternalAPI::class)
 public suspend fun ByteWriteChannel.writeByteArray(array: ByteArray) {
     writeBuffer.write(array)
-    flush()
+    flushIfNeeded()
 }
 
 @OptIn(InternalAPI::class)
 public suspend fun ByteWriteChannel.writeSource(source: Source) {
     writeBuffer.transferFrom(source)
-    flush()
+    flushIfNeeded()
 }
 
 @OptIn(InternalAPI::class)
 public suspend fun ByteWriteChannel.writeString(value: String) {
     writeBuffer.writeText(value)
-    flush()
+    flushIfNeeded()
 }
 
 @OptIn(InternalAPI::class)
 public suspend fun ByteWriteChannel.writeFully(value: ByteArray, offset: Int = 0, length: Int = value.size - offset) {
     writeBuffer.write(value, offset, offset + length)
-    flush()
+    flushIfNeeded()
 }
 
 @OptIn(InternalAPI::class)
 public suspend fun ByteWriteChannel.writeBuffer(value: Source) {
     writeBuffer.transferFrom(value)
-    flush()
+    flushIfNeeded()
 }
 
 @OptIn(InternalAPI::class)
 public suspend fun ByteWriteChannel.writeStringUtf8(value: String) {
     writeBuffer.writeText(value)
-    flush()
+    flushIfNeeded()
 }
 
 @OptIn(InternalAPI::class)
 public suspend fun ByteWriteChannel.writePacket(copy: Buffer) {
     writeBuffer.transferFrom(copy)
-    flush()
+    flushIfNeeded()
 }
 
 @OptIn(InternalAPI::class)
 public suspend fun ByteWriteChannel.writePacket(copy: Source) {
     writeBuffer.transferFrom(copy)
-    flush()
+    flushIfNeeded()
 }
 
 public fun ByteWriteChannel.close(cause: Throwable?) {
@@ -166,7 +166,7 @@ public suspend fun ByteWriteChannel.write(
     UnsafeBufferAccessors.writeToTail(writeBuffer.buffer, desiredSpace, block)
     val after = writeBuffer.size
     val written = after - before
-    flush()
+    flushIfNeeded()
     return written
 }
 

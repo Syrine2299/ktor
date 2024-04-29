@@ -25,6 +25,7 @@ public fun ByteReadChannel.split(coroutineScope: CoroutineScope): Pair<ByteReadC
         try {
             while (!isClosedForRead) {
                 val read = this@split.readAvailable(buffer)
+                if (read <= 0) continue
                 listOf(
                     async { first.writeFully(buffer, 0, read) },
                     async { second.writeFully(buffer, 0, read) }

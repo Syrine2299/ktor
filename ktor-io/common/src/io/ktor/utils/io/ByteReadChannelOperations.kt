@@ -13,6 +13,7 @@ import kotlinx.io.Buffer
 import kotlinx.io.unsafe.*
 import kotlin.coroutines.*
 import kotlin.jvm.*
+import kotlin.math.*
 
 
 @OptIn(InternalAPI::class)
@@ -344,6 +345,7 @@ public suspend fun ByteReadChannel.discard(max: Long = Long.MAX_VALUE): Long {
 
 @OptIn(InternalAPI::class)
 public suspend fun ByteReadChannel.readUTF8LineTo(out: Appendable, max: Int): Boolean {
+    if (isClosedForRead) return false
     if (readBuffer.exhausted()) awaitContent()
     if (isClosedForRead) return false
 
@@ -393,10 +395,21 @@ public suspend fun ByteReadChannel.read(block: suspend (Memory, Int, Int) -> Int
 public val ByteReadChannel.availableForRead: Int
     get() = readBuffer.buffer.size.toInt()
 
+/**
+ * Reads all [length] bytes to [dst] buffer or fails if channel has been closed.
+ * Suspends if not enough bytes available.
+ */
 @OptIn(InternalAPI::class)
 public suspend fun ByteReadChannel.readFully(out: ByteArray) {
-    while (availableForRead < out.size) awaitContent()
-    if (availableForRead < out.size) throw EOFException("Not enough data available")
+    if (isClosedForRead) throw EOFException("Channel is already closed")
 
-    readBuffer.readTo(out)
+    var offset = 0
+    while (offset < out.size) {
+        if (readBuffer.exhausted()) awaitContent()
+        if (isClosedForRead) throw EOFException("Channel is already closed")
+
+        val count = min(out.size - offset, readBuffer.remaining.toInt())
+        readBuffer.readTo(out, offset, offset + count)
+        offset += count
+    }
 }
