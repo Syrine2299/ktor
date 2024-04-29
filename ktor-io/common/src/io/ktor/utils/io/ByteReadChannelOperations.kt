@@ -222,14 +222,19 @@ public suspend fun ByteReadChannel.readRemaining(max: Long): ByteReadPacket {
     return result.buffer
 }
 
+/**
+ * Reads all available bytes to [dst] buffer and returns immediately or suspends if no bytes available
+ * @return number of bytes were read or `-1` if the channel has been closed
+ */
 @OptIn(InternalAPI::class)
 public suspend fun ByteReadChannel.readAvailable(
     buffer: ByteArray,
     offset: Int = 0,
     length: Int = buffer.size - offset
 ): Int {
+    if (isClosedForRead) return -1
     if (readBuffer.exhausted()) awaitContent()
-    if (isClosedForRead) return 0
+    if (isClosedForRead) return -1
 
     return readBuffer.readAvailable(buffer, offset, length)
 }
