@@ -24,10 +24,11 @@ public fun String(
     offset: Int = 0,
     length: Int = bytes.size,
     charset: Charset = Charsets.UTF_8
-): String {
-    check(charset == Charsets.UTF_8) { "Only UTF-8 charset is supported" }
-
-    return bytes.decodeToString(offset, offset + length)
+): String = when (charset) {
+    Charsets.UTF_8 -> bytes.decodeToString(offset, offset + length)
+    else -> buildPacket {
+        writeFully(bytes, offset, length)
+    }.readText(charset)
 }
 
 /**
