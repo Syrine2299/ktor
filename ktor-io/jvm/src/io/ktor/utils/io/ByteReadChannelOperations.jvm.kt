@@ -141,9 +141,24 @@ public suspend fun ByteReadChannel.readFully(buffer: ByteBuffer) {
     }
 }
 
+/**
+ * Invokes [block] if it is possible to read at least [min] byte
+ * providing byte buffer to it so lambda can read from the buffer
+ * up to [ByteBuffer.available] bytes. If there are no [min] bytes available then the invocation returns 0.
+ *
+ * Warning: it is not guaranteed that all of available bytes will be represented as a single byte buffer
+ * eg: it could be 4 bytes available for read but the provided byte buffer could have only 2 available bytes:
+ * in this case you have to invoke read again (with decreased [min] accordingly).
+ *
+ * @param min amount of bytes available for read, should be positive
+ * @param block to be invoked when at least [min] bytes available
+ *
+ * @return number of consumed bytes or -1 if the block wasn't executed.
+ */
 @OptIn(InternalAPI::class, SnapshotApi::class, UnsafeIoApi::class, InternalIoApi::class)
 public fun ByteReadChannel.readAvailable(block: (ByteBuffer) -> Int): Int {
-    if (readBuffer.exhausted()) return 0
+    if (isClosedForRead || readBuffer.exhausted()) return -1
+
     var result = 0
     UnsafeBufferAccessors.readFromHead(readBuffer.buffer) { array, start, endExclusive ->
         val buffer = ByteBuffer.wrap(array, start, endExclusive - start)

@@ -14,6 +14,5 @@ public interface BufferedByteWriteChannel : ByteWriteChannel {
     /**
      * Flush all pending bytes from [writeBuffer] to the internal read buffer without suspension and initiate channel close.
      */
-    @InternalAPI
     public fun close()
 }

@@ -102,7 +102,7 @@ public class ByteChannel : ByteReadChannel, BufferedByteWriteChannel {
         slot.resume()
     }
 
-    @InternalAPI
+    @OptIn(InternalAPI::class)
     override fun close() {
         if (!_closedCause.compareAndSet(null, CLOSED)) return
         flushWriteBuffer()
