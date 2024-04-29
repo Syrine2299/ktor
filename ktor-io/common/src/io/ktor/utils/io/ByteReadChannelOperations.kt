@@ -293,13 +293,29 @@ public fun CoroutineScope.reader(
     return ReaderJob(channel, job)
 }
 
+/**
+ * Reads a packet of [packet] bytes from the channel.
+ *
+ * @throws EOFException if the channel is closed before the packet is fully read.
+ */
 @Suppress("DEPRECATION")
 @OptIn(InternalAPI::class)
 public suspend fun ByteReadChannel.readPacket(packet: Int): ByteReadPacket {
-    while (readBuffer.remaining < packet && awaitContent()) {
-    }
     val result = Buffer()
-    readBuffer.readTo(result, packet.toLong())
+    while (result.size < packet) {
+        if (readBuffer.exhausted()) awaitContent()
+        if (isClosedForRead) break
+
+        if (readBuffer.remaining > packet - result.size) {
+            readBuffer.readTo(result, packet - result.size)
+        } else {
+            readBuffer.transferTo(result)
+        }
+    }
+
+    if (result.size < packet) {
+        throw EOFException("Not enough data available, required $packet bytes but only ${result.size} available")
+    }
     return result
 }
 

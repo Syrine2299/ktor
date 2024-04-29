@@ -22,9 +22,19 @@ public fun ByteReadChannel(content: ByteBuffer): ByteReadChannel {
     return ByteReadChannel(packet)
 }
 
+/**
+ * Reads bytes from the channel and writes them to the buffer up to its limit.
+ * If the channel's read buffer is exhausted, it suspends until there are bytes available.
+ *
+ * @param buffer the buffer to write the read bytes into
+ * @return the number of bytes read and written to the buffer or -1 if the channel is closed
+ */
 @OptIn(InternalAPI::class)
 public suspend fun ByteReadChannel.readAvailable(buffer: ByteBuffer): Int {
+    if (isClosedForRead) return -1
     if (readBuffer.exhausted()) awaitContent()
+    if (isClosedForRead) return -1
+
     return readBuffer.readAtMostTo(buffer)
 }
 
