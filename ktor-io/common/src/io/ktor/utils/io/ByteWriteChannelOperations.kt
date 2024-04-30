@@ -56,8 +56,8 @@ public suspend fun ByteWriteChannel.writeString(value: String) {
 }
 
 @OptIn(InternalAPI::class)
-public suspend fun ByteWriteChannel.writeFully(value: ByteArray, offset: Int = 0, length: Int = value.size - offset) {
-    writeBuffer.write(value, offset, offset + length)
+public suspend fun ByteWriteChannel.writeFully(value: ByteArray, startIndex: Int = 0, endIndex: Int = value.size) {
+    writeBuffer.write(value, startIndex, endIndex)
     flushIfNeeded()
 }
 
