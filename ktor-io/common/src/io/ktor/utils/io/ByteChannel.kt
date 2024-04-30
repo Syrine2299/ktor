@@ -104,14 +104,18 @@ public class ByteChannel(public val autoFlush: Boolean = false) : ByteReadChanne
 
     @OptIn(InternalAPI::class)
     override fun close() {
-        if (!_closedCause.compareAndSet(null, CLOSED)) return
         flushWriteBuffer()
+
+        // It's important to flush before we have closedCause set
+        if (!_closedCause.compareAndSet(null, CLOSED)) return
         slot.close(null)
     }
 
     override suspend fun flushAndClose() {
-        if (!_closedCause.compareAndSet(null, CLOSED)) return
         flush()
+
+        // It's important to flush before we have closedCause set
+        if (!_closedCause.compareAndSet(null, CLOSED)) return
         slot.close(null)
     }
 

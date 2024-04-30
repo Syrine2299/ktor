@@ -1,5 +1,5 @@
-import io.ktor.test.dispatcher.*
 import io.ktor.utils.io.*
+import kotlinx.coroutines.*
 import kotlin.test.*
 
 /*
@@ -22,7 +22,7 @@ class ByteReadChannelOperationsJvmTest {
     }
 
     @Test
-    fun testReadAvailableBlockAfterRead() = testSuspend {
+    fun testReadAvailableBlockAfterRead() = runBlocking {
         val channel = ByteChannel()
         assertEquals(-1, channel.readAvailable { buffer -> buffer.remaining() })
         channel.writeFully(byteArrayOf(1, 2, 3))
