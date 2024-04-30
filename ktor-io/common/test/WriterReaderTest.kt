@@ -10,6 +10,7 @@ import kotlin.test.*
 
 class WriterReaderTest {
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testWriterOnCancelled() = testSuspend {
         val job = Job()
@@ -23,6 +24,7 @@ class WriterReaderTest {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testReaderOnCancelled() = testSuspend {
         val job = Job()
