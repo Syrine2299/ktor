@@ -61,10 +61,7 @@ public class ByteChannel(public val autoFlush: Boolean = false) : ByteReadChanne
         get() = _closedCause.value != null
 
     override val isClosedForRead: Boolean
-        get() {
-            closedCause?.let { throw it }
-            return isClosedForWrite && flushBufferSize == 0 && _readBuffer.exhausted()
-        }
+        get() = isClosedForWrite && flushBufferSize == 0 && _readBuffer.exhausted()
 
     @OptIn(InternalAPI::class)
     override suspend fun awaitContent(): Boolean {
