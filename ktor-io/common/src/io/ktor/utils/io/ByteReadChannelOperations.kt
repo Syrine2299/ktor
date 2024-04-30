@@ -294,6 +294,12 @@ public fun CoroutineScope.reader(
         } finally {
             channel.flushAndClose()
         }
+    }.apply {
+        invokeOnCompletion {
+            if (it != null && !channel.isClosedForRead) {
+                channel.cancel(it)
+            }
+        }
     }
 
     return ReaderJob(channel, job)
@@ -333,7 +339,11 @@ public suspend fun ByteReadChannel.discardExact(value: Long) {
 public suspend fun ByteReadChannel.discard(max: Long = Long.MAX_VALUE): Long {
     var remaining = max
     while (remaining > 0 && !isClosedForRead) {
-        if (availableForRead == 0) awaitContent()
+        if (availableForRead == 0) {
+            println("awaiting from $this")
+            awaitContent()
+        }
+        println("await done")
         val count = minOf(remaining, readBuffer.remaining)
         readBuffer.discard(count)
 

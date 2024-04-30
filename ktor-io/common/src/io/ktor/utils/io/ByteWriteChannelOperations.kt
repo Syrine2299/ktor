@@ -142,6 +142,12 @@ public fun CoroutineScope.writer(
         } finally {
             channel.flushAndClose()
         }
+    }.apply {
+        invokeOnCompletion {
+            if (it != null && !channel.isClosedForWrite) {
+                channel.cancel(it)
+            }
+        }
     }
 
     return WriterJob(channel, job)
