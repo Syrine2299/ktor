@@ -55,8 +55,6 @@ internal class RawSourceChannel(
         get() = buffer
 
     override suspend fun awaitContent(): Boolean {
-        closedCause?.let { throw it }
-
         withContext(coroutineContext) {
             val result = try {
                 source.readAtMostTo(buffer, Long.MAX_VALUE)

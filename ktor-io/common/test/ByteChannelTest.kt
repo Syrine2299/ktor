@@ -1,5 +1,6 @@
 import io.ktor.test.dispatcher.*
 import io.ktor.utils.io.*
+import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
 import kotlinx.io.*
 import kotlin.test.*
@@ -119,5 +120,21 @@ class ByteChannelTest {
         deferred.await()
 
         assertTrue(writerThrows)
+    }
+
+    @Test
+    fun testIsCloseForReadAfterCancel() = testSuspend {
+        val packet = buildPacket {
+            writeInt(1)
+            writeInt(2)
+            writeInt(3)
+        }
+
+        val channel = ByteChannel()
+        channel.writePacket(packet)
+        channel.flush()
+        channel.cancel()
+
+        assertTrue(channel.isClosedForRead)
     }
 }

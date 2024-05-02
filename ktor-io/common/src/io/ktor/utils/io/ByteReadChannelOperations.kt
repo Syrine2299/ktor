@@ -201,6 +201,7 @@ public suspend fun ByteReadChannel.readRemaining(): ByteReadPacket {
         awaitContent()
     }
 
+    rethrowCloseCauseIfNeeded()
     return result.buffer
 }
 
@@ -420,4 +421,9 @@ public suspend fun ByteReadChannel.readFully(out: ByteArray) {
         readBuffer.readTo(out, offset, offset + count)
         offset += count
     }
+}
+
+@InternalAPI
+public fun ByteReadChannel.rethrowCloseCauseIfNeeded() {
+    closedCause?.let { throw IOException("Channel was closed", it) }
 }

@@ -61,11 +61,11 @@ public class ByteChannel(public val autoFlush: Boolean = false) : ByteReadChanne
         get() = _closedCause.value != null
 
     override val isClosedForRead: Boolean
-        get() = isClosedForWrite && flushBufferSize == 0 && _readBuffer.exhausted()
+        get() = (closedCause != null) || (isClosedForWrite && flushBufferSize == 0 && _readBuffer.exhausted())
 
     @OptIn(InternalAPI::class)
     override suspend fun awaitContent(): Boolean {
-        closedCause?.let { throw it }
+        rethrowCloseCauseIfNeeded()
 
         if (flushBufferSize == 0 && !isClosedForRead) slot.sleepWhile { flushBufferSize == 0 && !isClosedForRead }
         if (_readBuffer.size < CHANNEL_MAX_SIZE) moveFlushToReadBuffer()
@@ -84,6 +84,8 @@ public class ByteChannel(public val autoFlush: Boolean = false) : ByteReadChanne
 
     @OptIn(InternalAPI::class)
     override suspend fun flush() {
+        rethrowCloseCauseIfNeeded()
+
         flushWriteBuffer()
         slot.sleepWhile { flushBufferSize >= CHANNEL_MAX_SIZE }
     }
@@ -123,6 +125,7 @@ public class ByteChannel(public val autoFlush: Boolean = false) : ByteReadChanne
 
         val actualCause = IOException("Channel was cancelled", cause)
         _closedCause.compareAndSet(null, CloseToken(actualCause))
+
         slot.close(actualCause)
     }
 
