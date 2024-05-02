@@ -14,6 +14,7 @@ import io.ktor.client.tests.utils.*
 import io.ktor.http.*
 import io.ktor.test.dispatcher.*
 import io.ktor.util.*
+import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.*
 import kotlin.reflect.*
 import kotlin.test.*
@@ -135,7 +136,7 @@ class ExceptionsTest : ClientLoader() {
             val requestBuilder = HttpRequestBuilder()
             requestBuilder.url.takeFrom("$TEST_SERVER/download/infinite")
 
-            assertFailsWith<IllegalStateException> {
+            assertFailsWith<IOException> {
                 client.prepareGet(requestBuilder).execute { response ->
                     try {
                         CoroutineScope(response.coroutineContext).launch {
