@@ -293,7 +293,7 @@ public fun CoroutineScope.reader(
         } catch (cause: Throwable) {
             channel.close(cause)
         } finally {
-            channel.flushAndClose()
+            runCatching { channel.flushAndClose() }
         }
     }.apply {
         invokeOnCompletion {

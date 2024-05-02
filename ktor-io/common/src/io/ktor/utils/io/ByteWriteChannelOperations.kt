@@ -140,7 +140,7 @@ public fun CoroutineScope.writer(
         } catch (cause: Throwable) {
             channel.cancel(cause)
         } finally {
-            channel.flushAndClose()
+            runCatching { channel.flushAndClose() }
         }
     }.apply {
         invokeOnCompletion {
