@@ -33,6 +33,8 @@ class WriterReaderTest {
         val reader = GlobalScope.reader(coroutineContext = job) {
         }
 
+        delay(100L)
+
         assertFailsWith<IOException> {
             reader.channel.writeByte(42)
         }

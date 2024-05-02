@@ -427,3 +427,13 @@ public suspend fun ByteReadChannel.readFully(out: ByteArray) {
 public fun ByteReadChannel.rethrowCloseCauseIfNeeded() {
     closedCause?.let { throw IOException("Channel was closed", it) }
 }
+
+@InternalAPI
+public fun ByteWriteChannel.rethrowCloseCauseIfNeeded() {
+    closedCause?.let { throw IOException("Channel was closed", it) }
+}
+
+@InternalAPI
+public fun ByteChannel.rethrowCloseCauseIfNeeded() {
+    closedCause?.let { throw IOException("Channel was closed", it) }
+}

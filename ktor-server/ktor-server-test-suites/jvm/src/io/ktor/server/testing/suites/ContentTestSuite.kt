@@ -419,10 +419,8 @@ abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : Ap
         }
 
         withUrl("/files/${ContentTestSuite::class.simpleName}.class") {
-            println("first response $it")
             assertEquals(200, status.value)
             val bytes = readBytes(8192)
-            println("read bytes $bytes")
             assertNotEquals(0, bytes.size)
 
             // class file signature
@@ -433,17 +431,14 @@ abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : Ap
 
             discardRemaining()
         }
-        println("first done")
         withUrl("/files/${ContentTestSuite::class.simpleName}.class2") {
             assertEquals(HttpStatusCode.NotFound.value, status.value)
             discardRemaining()
         }
-        println("second done")
         withUrl("/wefwefwefw") {
             assertEquals(HttpStatusCode.NotFound.value, status.value)
             discardRemaining()
         }
-        println("third done")
     }
 
     @Test
