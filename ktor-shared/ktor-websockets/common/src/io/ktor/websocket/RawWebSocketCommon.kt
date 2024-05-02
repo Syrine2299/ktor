@@ -6,7 +6,6 @@ package io.ktor.websocket
 
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
-import io.ktor.utils.io.bits.*
 import io.ktor.utils.io.core.*
 import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.*
@@ -105,8 +104,6 @@ internal class RawWebSocketCommon(
             // no more bytes is possible to read
         } catch (eof: ClosedReceiveChannelException) {
             // no more bytes is possible to read
-        } catch (io: ChannelIOException) {
-            _incoming.cancel()
         } catch (cause: Throwable) {
             _incoming.close(cause)
             throw cause
